@@ -57,7 +57,7 @@ Always run commands from the **project root**.
 | :--- | :--- |
 | `uv run scripts/health.py` | Basic check for `.env` and API connectivity. |
 | `uv run scripts/mcp-integration-test.py` | Full test of all 5 MCP tools with real data. |
-| `uv run scripts/get_token.py` | Run this if you face "Unauthorized" errors to refresh tokens. No need to provide client id and secret every time as it is stored in .env file. This is a one time process. |
+| `uv run scripts/get_token.py` | Do not Run this command if you haven't faced "Unauthorized" errors while running above commands. Run this if you face "Unauthorized" errors to refresh tokens. No need to provide client id and secret every time as it is stored in .env file. This is a one time process. |
 ---
 
 ## 🤖 Claude Desktop Integration

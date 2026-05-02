@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strava Activity Tracker MCP</title>
+    <meta name="description"
+        content="A powerful Model Context Protocol (MCP) server that connects your Strava training data to Claude.">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Outfit:wght@300;400;600;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        /* Solarpunk Minimal Theme Tokens */
+        :root {
+            --bg-primary: #F9F8F4;
+            /* Warm off-white */
+            --bg-secondary: #EFECE1;
+            /* Slightly darker earth tone */
+            --text-main: #2C3A29;
+            /* Deep forest green/black */
+            --text-muted: #556B52;
+            /* Muted leaf green */
+            --accent-green: #4A7C59;
+            /* Botanical green */
+            --accent-sun: #F9A03F;
+            /* Solar orange/yellow */
+            --accent-terra: #D96C5B;
+            /* Terracotta red for warnings */
+            --card-bg: #FFFFFF;
+            --border-radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --shadow-sm: 0 4px 6px rgba(44, 58, 41, 0.05);
+            --shadow-md: 0 10px 20px rgba(44, 58, 41, 0.08);
+            --shadow-hover: 0 15px 30px rgba(74, 124, 89, 0.15);
+        }
+
+        /* Reset & Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+            color: var(--text-muted);
+        }
+
+        a {
+            color: var(--accent-green);
+            text-decoration: none;
+            position: relative;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        a::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background-color: var(--accent-sun);
+            transform: scaleX(0);
+            transform-origin: bottom right;
+            transition: transform 0.3s ease-out;
+        }
+
+        a:hover::after {
+            transform: scaleX(1);
+            transform-origin: bottom left;
+        }
+
+        ul,
+        ol {
+            margin-bottom: 1.5rem;
+            padding-left: 1.5rem;
+            color: var(--text-muted);
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Layout */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        /* Header / Hero */
+        header {
+            text-align: center;
+            padding: 4rem 0 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background-color: rgba(249, 160, 63, 0.15);
+            color: var(--accent-sun);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            animation: fadeInDown 0.8s ease backwards;
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+            animation: fadeInUp 0.8s ease backwards 0.1s;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            animation: fadeInUp 0.8s ease backwards 0.2s;
+        }
+
+        .github-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: var(--text-main);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            transition: var(--transition);
+            animation: fadeInUp 0.8s ease backwards 0.3s;
+        }
+
+        .github-btn::after {
+            display: none;
+        }
+
+        /* Override link style */
+
+        .github-btn:hover {
+            background-color: var(--accent-green);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Sections & Cards */
+        section {
+            margin-bottom: 4rem;
+            animation: fadeIn 1s ease backwards 0.4s;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--bg-secondary);
+        }
+
+        .section-icon {
+            font-size: 1.5rem;
+            background: var(--bg-secondary);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            color: var(--accent-green);
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(74, 124, 89, 0.05);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--accent-sun);
+            transform: scaleY(0);
+            transition: var(--transition);
+            transform-origin: bottom;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .card:hover::before {
+            transform: scaleY(1);
+        }
+
+        .card h3 {
+            color: var(--accent-green);
+            font-size: 1.3rem;
+        }
+
+        /* Code & Terminals */
+        .code-block {
+            background: #1A2318;
+            /* Dark organic tone */
+            color: #EFECE1;
+            padding: 1.5rem;
+            border-radius: 12px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .code-block code {
+            display: block;
+            white-space: pre;
+        }
+
+        .inline-code {
+            background: var(--bg-secondary);
+            color: var(--text-main);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 2rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th,
+        td {
+            padding: 1.2rem;
+            border-bottom: 1px solid var(--bg-secondary);
+        }
+
+        th {
+            background-color: rgba(74, 124, 89, 0.05);
+            font-family: 'Outfit', sans-serif;
+            color: var(--accent-green);
+            font-weight: 600;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background-color: rgba(249, 248, 244, 0.5);
+        }
+
+        /* Step-by-step */
+        .step {
+            display: flex;
+            margin-bottom: 2rem;
+            gap: 1.5rem;
+        }
+
+        .step-number {
+            flex-shrink: 0;
+            width: 40px;
+            height: 40px;
+            background: var(--accent-green);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 10px rgba(74, 124, 89, 0.3);
+        }
+
+        .step-content {
+            flex-grow: 1;
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .note {
+            background: rgba(249, 160, 63, 0.1);
+            border-left: 4px solid var(--accent-sun);
+            padding: 1rem 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1.5rem 0;
+        }
+
+        .note strong {
+            color: #d17e1e;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .step {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>Strava Activity Tracker MCP</h1>
+            <p class="subtitle">A powerful Model Context Protocol server that connects your Strava training data to
+                Claude. Turn AI into your personal running coach, performance analyst, and training partner.</p>
+            <a href="https://github.com/RaHuL-J31/activity-tracker-mcp" target="_blank" class="github-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                        d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+                    </path>
+                </svg>
+                View on GitHub
+            </a>
+        </header>
+
+        <!-- Features -->
+        <section>
+            <div class="section-header">
+                <div class="section-icon">✨</div>
+                <h2>Features</h2>
+            </div>
+            <div class="card-grid">
+                <div class="card">
+                    <h3>🏃‍♂️ Personal Coach</h3>
+                    <p>Generate custom 5k, 10k, Half, or Marathon plans based on your actual fitness levels with heart
+                        rate zones.</p>
+                </div>
+                <div class="card">
+                    <h3>📊 Deep Analysis</h3>
+                    <p>Per-kilometer breakdown of pace, heart rate efficiency, and cardiac drift for every workout.</p>
+                </div>
+                <div class="card">
+                    <h3>🏆 Personal Records</h3>
+                    <p>Instant access to your all-time best efforts (1k, 5k, 10k) and lifetime running/cycling totals.
+                    </p>
+                </div>
+                <div class="card">
+                    <h3>🧠 Smart Filtering</h3>
+                    <p>Automatically finds the right activity type (Run, Ride, Walk) even if you've done other workouts
+                        since.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Start -->
+        <section>
+            <div class="section-header">
+                <div class="section-icon">🚀</div>
+                <h2>Quick Start & Setup <a href="https://github.com/RaHuL-J31/activity-tracker-mcp/blob/main/README.md#-quick-start" target="_blank" style="font-size: 0.6em; margin-left: 10px; color: var(--accent-sun);">View README docs ↗</a></h2>
+            </div>
+
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Prerequisites</h3>
+                    <p>Ensure you have <strong>Python 3.11+</strong> and the fast Python package manager <a
+                            href="https://github.com/astral-sh/uv" target="_blank">uv</a> installed globally.</p>
+                    <p>You also need <strong>Strava API Credentials</strong>. <a href="#detailed-strava-api-setup-guide">Click here to see detail explaination</a>.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>Clone & Sync</h3>
+                    <p>Download the repository and install dependencies using uv. Do not use standard pip install.</p>
+                    <div class="code-block"><code>git clone https://github.com/RaHuL-J31/activity-tracker-mcp.git
+cd activity-tracker-mcp
+uv sync</code></div>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Configuration (.env)</h3>
+                    <p>Copy <span class="inline-code">.env.example</span> to <span class="inline-code">.env</span> and
+                        fill in your Client ID and Secret. Leave the token fields empty.</p>
+                    <div class="code-block"><code>STRAVA_CLIENT_ID=12345
+STRAVA_CLIENT_SECRET=abc123yoursecret
+STRAVA_ACCESS_TOKEN=''
+STRAVA_REFRESH_TOKEN=''
+STRAVA_TOKEN_EXPIRES_AT=0</code></div>
+                    <div class="note">
+                        <strong>Note:</strong> Even if the Strava dashboard shows you an "Access Token," it lacks the
+                        necessary permissions to read activity data. The script in the next step handles this.
+                    </div>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3>Authentication</h3>
+                    <p>Run the helper script to authorize the app. A browser window will open.</p>
+                    <div class="code-block"><code>uv run scripts/get_token.py</code></div>
+                    <p>Click <strong>Authorize</strong>. You will be redirected to a localhost URL. <strong>Copy the
+                            complete URL</strong> from the browser and paste it back into your terminal. Your secure
+                        tokens are now saved!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testing -->
+        <section>
+            <div class="section-header">
+                <div class="section-icon">🛠️</div>
+                <h2>Testing & Verification</h2>
+            </div>
+            <p>Always run commands from the project root directory to ensure paths resolve correctly.</p>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Command</th>
+                            <th>Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="inline-code">uv run scripts/health.py</span></td>
+                            <td>Basic check for <span class="inline-code">.env</span> setup and basic API connectivity.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><span class="inline-code">uv run scripts/mcp-integration-test.py</span></td>
+                            <td>Full integration test of all 5 MCP tools with your real Strava data.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="inline-code">uv run scripts/get_token.py</span></td>
+                            <td>Run this if you face "Unauthorized" errors to refresh tokens (One-time process). This is only if you get an error in the above commands.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Claude Integration -->
+        <section>
+            <div class="section-header">
+                <div class="section-icon">🤖</div>
+                <h2>Claude Desktop Integration</h2>
+            </div>
+            <p>To connect this server to Claude, add the following to your <span
+                    class="inline-code">claude_desktop_config.json</span>.</p>
+
+            <h3>Windows</h3>
+            <div class="code-block"><code>"mcpServers": {
+  "strava": {
+    "command": "uv",
+    "args": [
+      "run",
+      "--directory",
+      "C:\\Path\\To\\activity-tracker-mcp",
+      "src\\main.py"
+    ]
+  }
+}</code></div>
+
+            <h3>macOS / Linux</h3>
+            <div class="code-block"><code>"mcpServers": {
+  "strava": {
+    "command": "uv",
+    "args": [
+      "run",
+      "--directory",
+      "/path/to/activity-tracker-mcp",
+      "src/main.py"
+    ]
+  }
+}</code></div>
+        </section>
+
+        <!-- Available Tools -->
+        <section>
+            <div class="section-header">
+                <div class="section-icon">🔍</div>
+                <h2>Available Tools & Queries</h2>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tool Name</th>
+                            <th>Description</th>
+                            <th>Example Question for Claude</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>check_strava_connection</strong></td>
+                            <td>Verifies if Claude can securely talk to Strava.</td>
+                            <td>"Is my Strava connection working?"</td>
+                        </tr>
+                        <tr>
+                            <td><strong>get_recent_activities</strong></td>
+                            <td>Lists your latest recorded workouts.</td>
+                            <td>"Show me my last 5 activities."</td>
+                        </tr>
+                        <tr>
+                            <td><strong>analyze_workout</strong></td>
+                            <td>Detailed per-km split & HR analysis.</td>
+                            <td>"Analyze my last run and check for heart rate drift."</td>
+                        </tr>
+                        <tr>
+                            <td><strong>get_personal_records</strong></td>
+                            <td>Shows lifetime totals and Metric PRs.</td>
+                            <td>"What are my PRs for 5k and 10k?"</td>
+                        </tr>
+                        <tr>
+                            <td><strong>generate_training_plan</strong></td>
+                            <td>AI Coach creates a week-by-week plan with zones.</td>
+                            <td>"I want to run a sub-50min 10k in 10 weeks. Build me a plan."</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="note" style="border-color: var(--accent-terra);">
+                <strong>Safety First:</strong> The Coach tool will deny unrealistic goals (e.g., Marathon in 1 week) to
+                prevent injury. Always prioritize metric units for precision.
+            </div>
+        </section>
+
+        <!-- Detailed Guide -->
+        <section id="detailed-strava-api-setup-guide">
+            <div class="section-header">
+                <div class="section-icon">🔑</div>
+                <h2>Detailed Strava API Setup Guide</h2>
+            </div>
+
+            <div class="card" style="background: var(--bg-secondary); border: none;">
+                <p>Follow these precise steps to get your credentials if you are setting this up for the first time:</p>
+                <ol>
+                    <li><strong>Login to Strava:</strong> Visit the <a href="https://www.strava.com/settings/api"
+                            target="_blank">Strava API Settings</a>.</li>
+                    <li><strong>Create Application:</strong> You will be taken to the "My API Application" page.
+                        <ul>
+                            <li><strong>Application Name:</strong> Give it any name (e.g., "My Activity Tracker").
+                                <em>Note: Do not use the word "Strava" in the name.</em>
+                            </li>
+                            <li><strong>Category:</strong> Select <span class="inline-code">Performance Analysis</span>.
+                            </li>
+                            <li><strong>Club:</strong> Select <span class="inline-code">None</span>.</li>
+                            <li><strong>Website:</strong> Use <span class="inline-code">www.website.com</span> for now.
+                            </li>
+                            <li><strong>Application Description:</strong> You can leave this empty.</li>
+                            <li><strong>Authorization Callback Domain:</strong> Set this to <span
+                                    class="inline-code">localhost</span> <strong>(Crucial step!)</strong>.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Upload Logo:</strong> Strava requires a logo. You can find a <span
+                            class="inline-code">logo.png</span> in the repository, or upload any small image.</li>
+                    <li><strong>Get Credentials:</strong> Click Create. You will now see your <strong>Client ID</strong>
+                        and <strong>Client Secret</strong>.</li>
+                    <li><strong>Update .env:</strong> Copy these two values into your <span
+                            class="inline-code">.env</span> file. Ignore the "Access Token" on the website.</li>
+                </ol>
+            </div>
+        </section>
+
+        <footer
+            style="text-align: center; padding: 2rem 0; border-top: 1px solid var(--bg-secondary); color: var(--text-muted); font-size: 0.9rem;">
+            Built with ❤️ for runners. <br>
+            <a href="https://github.com/RaHuL-J31/activity-tracker-mcp">View Repository</a>
+        </footer>
+
+    </div>
+
+</body>
+
+</html>
