@@ -1,0 +1,19 @@
+[project]
+name = "activity-tracker-mcp"
+version = "0.1.0"
+description = "MCP server for Strava integration with Claude"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "fastmcp>=3.2.4",
+    "httpx>=0.28.1",
+    "python-dotenv>=1.2.2",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["*"]
