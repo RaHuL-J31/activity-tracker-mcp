@@ -2,7 +2,7 @@
 
 A powerful Model Context Protocol (MCP) server that connects your Strava training data to Claude. This server allows Claude to act as your personal running coach, performance analyst, and training partner.
 
-![Strava MCP Demo](StravaMCP.gif)
+![Strava MCP Demo](DemoMCP.gif)
 
 ## 🌟 Features
 
