@@ -104,11 +104,11 @@ def _analyze_fitness(activities: list, stats: dict) -> dict:
             },
             "Z4": {
                 "hr": f"{round(max_hr * 0.80)} - {round(max_hr * 0.90)} bpm",
-                "pace_sec": (threshold_pace - 10, threshold_pace + 20)
+                "pace_sec": (threshold_pace - 15, threshold_pace + 10)
             },
             "Z5": {
                 "hr": f"{round(max_hr * 0.90)}+ bpm",
-                "pace_sec": (threshold_pace - 40, threshold_pace - 10)
+                "pace_sec": (threshold_pace - 60, threshold_pace - 15)
             }
         }
     }
@@ -167,14 +167,14 @@ def _build_plan(goal: str, weeks: int, freq: int, fitness: dict) -> list:
         # Day 2: Quality Session (Tempo or Intervals)
         if freq > 1:
             if w % 2 == 0 and not is_recovery:
-                # Interval Session (Zone 4/5)
-                z4 = zones["Z4"]
+                # Interval Session (Zone 5)
+                z5 = zones["Z5"]
                 week_workouts.append({
                     "type": "Intervals",
                     "sets": f"{3 + (w//3)} x 800m",
-                    "pace_target": f"{_format_pace(z4['pace_sec'][0])}",
-                    "hr_range": z4["hr"],
-                    "description": "High intensity bursts. Push your threshold."
+                    "pace_target": f"{_format_pace(z5['pace_sec'][0])}",
+                    "hr_range": z5["hr"],
+                    "description": "High intensity bursts. Push your VO2 max."
                 })
             else:
                 # Tempo Run (Zone 3)
@@ -200,6 +200,28 @@ def _build_plan(goal: str, weeks: int, freq: int, fitness: dict) -> list:
                 "hr_range": z2["hr"],
                 "description": "Focus on time on feet. Speed is not important here."
             })
+            
+        # Day 4: Additional Easy Run
+        if freq > 3:
+            week_workouts.append({
+                "type": "Easy Base Run",
+                "distance": f"{round(4 + (w*0.3), 1)} km",
+                "pace_range": f"{_format_pace(z2['pace_sec'][1])} - {_format_pace(z2['pace_sec'][0])}",
+                "hr_range": z2["hr"],
+                "description": "Aerobic base building. Keep it slow."
+            })
+            
+        # Day 5: Additional Quality or Steady
+        if freq > 4:
+            z3 = zones["Z3"]
+            week_workouts.append({
+                "type": "Steady State Run",
+                "distance": f"{round(5 + (w*0.4), 1)} km",
+                "pace_range": f"{_format_pace(z3['pace_sec'][1])} - {_format_pace(z3['pace_sec'][0])}",
+                "hr_range": z3["hr"],
+                "description": "Slightly faster than easy, but not a tempo effort."
+            })
+
 
         plan.append({
             "week": w,

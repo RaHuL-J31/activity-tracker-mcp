@@ -418,15 +418,26 @@
             <h1>Strava Activity Tracker MCP</h1>
             <p class="subtitle">A powerful Model Context Protocol server that connects your Strava training data to
                 Claude. Turn AI into your personal running coach, performance analyst, and training partner.</p>
-            <a href="https://github.com/RaHuL-J31/activity-tracker-mcp" target="_blank" class="github-btn">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <path
-                        d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
-                    </path>
-                </svg>
-                View on GitHub
-            </a>
+            <div
+                style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; animation: fadeInUp 0.8s ease backwards 0.3s;">
+                <a href="https://github.com/RaHuL-J31/activity-tracker-mcp" target="_blank" class="github-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+                        </path>
+                    </svg>
+                    View on GitHub
+                </a>
+                <a href="#demo" class="github-btn"
+                    style="background-color: var(--bg-secondary); color: var(--text-main);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                    See Demo
+                </a>
+            </div>
         </header>
 
         <!-- Features -->
@@ -679,6 +690,19 @@ STRAVA_TOKEN_EXPIRES_AT=0</code></div>
                     <li><strong>Update .env:</strong> Copy these two values into your <span
                             class="inline-code">.env</span> file. Ignore the "Access Token" on the website.</li>
                 </ol>
+            </div>
+        </section>
+
+        <!-- Demo Section -->
+        <section id="demo">
+            <div class="section-header">
+                <div class="section-icon">▶️</div>
+                <h2>Live Demo</h2>
+            </div>
+            <div
+                style="padding: 1rem; background: var(--card-bg); border-radius: var(--border-radius); box-shadow: var(--shadow-sm); border: 1px solid rgba(74, 124, 89, 0.1);">
+                <img src="StravaMCP.gif" alt="Strava MCP Demo"
+                    style="max-width: 100%; height: auto; border-radius: 8px;">
             </div>
         </section>
 

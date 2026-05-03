@@ -2,6 +2,8 @@
 
 A powerful Model Context Protocol (MCP) server that connects your Strava training data to Claude. This server allows Claude to act as your personal running coach, performance analyst, and training partner.
 
+![Strava MCP Demo](StravaMCP.gif)
+
 ## 🌟 Features
 
 - **Personal Running Coach**: Generate custom 5k, 10k, HM, or Marathon plans based on your actual fitness levels.
